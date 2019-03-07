@@ -78,4 +78,8 @@ public class State implements Cloneable {
     public ArrayList<Enemy> getEnemyList(){ return enemy_List; }
     public Enemy getEnemy(int enemy_index){ return enemy_List.get(enemy_index); }
     public void addEnemy(Enemy newenemy){ enemy_List.add(newenemy); }
+    
+    public ArrayList<FlrInformation> getFlrList(){ return flr_List; }
+    public FlrInformation getFlrInformation(int flr_number){ return flr_List.get(flr_number); }
+    public void addFlrInformation(FlrInformation newflr){ flr_List.add(newflr); }
 }

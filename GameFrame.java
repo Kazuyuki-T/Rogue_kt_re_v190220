@@ -61,7 +61,7 @@ public class GameFrame implements Cloneable{
         JMenuItem menuitem3;
 
         menubar = new JMenuBar();
-        menu1 = new JMenu("File");
+        menu1 = new JMenu("File"); // 仮決め，機能未実装
         menu2 = new JMenu("Menu");
         menu3 = new JMenu("Setting");
         menu4 = new JMenu("Option");
@@ -69,7 +69,7 @@ public class GameFrame implements Cloneable{
         menubar.add(menu2);
         menubar.add(menu3);
         menubar.add(menu4);
-        menuitem1 = new JMenuItem("New");
+        menuitem1 = new JMenuItem("New"); // 仮決め
         menuitem2 = new JMenuItem("Open");
         menuitem3 = new JMenuItem("Close");
         menu1.add(menuitem1);

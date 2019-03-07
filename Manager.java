@@ -48,7 +48,7 @@ public class Manager implements Cloneable {
         
         while(true){
             // プレイヤが確認できる範囲の情報
-            String str_state = state.getPlayerInfo();
+            String str_state = state.getStateForPlayer();
 
             // 情報をキャンバスに渡し，描画
             gameframe.setState(state);
@@ -69,7 +69,7 @@ public class Manager implements Cloneable {
         
         while(true){
             // プレイヤが確認できる範囲の情報
-            String str_state = state.getPlayerInfo();
+            String str_state = state.getStateForPlayer();
 
             // ターンを進める
             

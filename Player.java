@@ -42,6 +42,23 @@ public class Player extends Unit implements Cloneable {
         return player;
     }
     
+    public void activate(int x, int y, int maxHp, int hp, int attack, int maxSatiety, int satiety, int level, int exp, int sumExp){
+        setActive(true);
+        setPosX(x);
+        setPosY(y);
+        
+        setActionFlag(false);
+        setMaxHp(maxHp);
+        setHp(hp);
+        setAttack(attack);
+        
+        this.maxSatiety = maxSatiety;
+        this.satiety = satiety;
+        this.level = level;
+        this.exp = exp;
+        this.sumExp = sumExp;
+    }
+    
     public int getMaxSatiety() { return maxSatiety; };
     public void setMaxSatiety(int maxSatiety) { this.maxSatiety = maxSatiety; };
     
