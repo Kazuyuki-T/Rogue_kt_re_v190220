@@ -20,7 +20,7 @@ public class Manager implements Cloneable {
     }
     
     public void initState(){
-        state = rule.initState(); // ゲーム情報の初期化
+        state = rule.getInitState(); // ゲーム情報の初期化
     }
     
     // ディープコピー用

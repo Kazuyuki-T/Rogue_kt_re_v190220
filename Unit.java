@@ -10,9 +10,9 @@
  */
 public abstract class Unit extends GameObject implements Cloneable{
     private boolean actionFlag; // ターン中のアクションの有無
-    private int speed; // 速さ
-    private int maxHp; // 体力,0になると消滅
-    private int hp;
+    private int speed; // 速さ，行動順や行動回数に影響？
+    private int maxHp; // 全体力
+    private int hp; // 体力,0になると消滅
     private int attack; // 攻撃力
     private int dir; // 向いている方向
     // 7 8 9

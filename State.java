@@ -11,24 +11,22 @@ import java.util.ArrayList;
  *
  * @author Kazuyuki.T
  */
+
 public class State implements Cloneable {
     private int turn;
     private int flr;
     private Player player;
     private ArrayList<Enemy> enemy_List; // 現フロアの敵情報
-    private ArrayList<FlrInformation> flrinfo_List; // フロア情報はリストとして所持
-            
+    private ArrayList<FlrInformation> flr_List; // フロア情報はリストとして所持
+    
     public State(){
-        
-        
-        
-        
+        enemy_List = new ArrayList<Enemy>(); // リストの宣言
+        flr_List = new ArrayList<FlrInformation>();  // リストの宣言
     }
     
     public void init(){
-        // 
-        
-        flrinfo_List.clear();
+        enemy_List.clear();
+        flr_List.clear();
     }
         
     // ディープコピー用
@@ -36,8 +34,8 @@ public class State implements Cloneable {
         State state = new State();
         try{
             // ラムダ式ループ
-            this.flrinfo_List.forEach(flrinfo -> {
-                state.flrinfo_List.add(flrinfo);
+            this.flr_List.forEach(flrinfo -> {
+                state.flr_List.add(flrinfo);
             });
         } catch(Exception e) {
             e.printStackTrace();
@@ -46,23 +44,38 @@ public class State implements Cloneable {
     }
     
     // 文字列 -> ゲーム情報
-    public void string2info(String strinfo){
+    // プレイヤが文字列から状態を判別するために使用
+    // Ruleにここから得らる状態を投げて次状態の予測が可能
+    public void string2state(String strinfo){
         
     }
     
     // ゲーム情報 -> 文字列
-    public String info2string(){
-        String strinfo = new String();
+    public String state2string(){
+        String state = new String();
         
-        return strinfo;
+        return state;
     }
     
     // プレイヤ用のゲーム情報の取得
-    public String getPlayerInfo(){
-        String strinfo = new String();
+    public String getStateForPlayer(){
+        String state = new String();
         
         //
         
-        return strinfo;
+        return state;
     }
+    
+    public int getTurn(){ return turn; }
+    public void setTurn(int turn){ this.turn = turn; }
+    
+    public int getFlr(){ return flr; }
+    public void setFlr(int flr){ this.flr = flr; }
+    
+    public Player getPlayer(){ return player; }
+    public void setPlayer(Player player){ this.player = player; }
+    
+    public ArrayList<Enemy> getEnemyList(){ return enemy_List; }
+    public Enemy getEnemy(int enemy_index){ return enemy_List.get(enemy_index); }
+    public void addEnemy(Enemy newenemy){ enemy_List.add(newenemy); }
 }

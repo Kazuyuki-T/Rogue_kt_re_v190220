@@ -37,6 +37,7 @@ import javax.swing.JTextArea;
  *
  * @author Kazuyuki.T
  */
+
 public class GameFrame implements Cloneable{
     private MainCanvas maincanvas;
     
@@ -188,13 +189,14 @@ public class GameFrame implements Cloneable{
     
     
     // インナークラス
-    public class MainCanvas extends Canvas implements Cloneable, Runnable {
+    // 外側へアクセスできる？，setstate消して直接アクセスにする？フレームサイズとかも
+    // GameFrame.this.-　でアクセスできるのでは？？
+    private class MainCanvas extends Canvas implements Cloneable, Runnable {
         private Image imgBuf;
         private Graphics gBuf;
         private int fsizeX;
         private int fsizeY;
         private State state;
-        
         private int test;
         
         public MainCanvas(){
