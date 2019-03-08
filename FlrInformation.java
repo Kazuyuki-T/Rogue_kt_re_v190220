@@ -154,6 +154,27 @@ public class FlrInformation implements Cloneable {
         }
     }
     
+    public Point setEnemyPos(int setNumber){
+        int count = 0;
+        int ex = 0;
+        int ey = 0;
+        
+        for(int y = 0; y < map.length; y++){
+            for(int x = 0; x < map[y].length; x++){
+                if(map[y][x] == 0){
+                    if(count == setNumber) {
+                        // 配置可能座標の時，更新
+                    }
+                    else{
+                        count++; // 配置可能な部分をカウント
+                    }
+                }
+            }
+        }
+        
+        return new Point(ex, ey);
+    }
+    
     // s[] = intに変換したいストリングを収めた配列
     public int[] parseInts(String[] s) {
         int[] x = new int[s.length];
@@ -164,7 +185,7 @@ public class FlrInformation implements Cloneable {
     }
     
     public Point aaa(){
-        
+        return new Point(0, 0);
     }
     
     // ==============================

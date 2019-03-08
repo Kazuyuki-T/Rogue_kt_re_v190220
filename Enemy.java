@@ -30,7 +30,7 @@ public class Enemy extends Unit implements Cloneable {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return enemy;    
+        return enemy;
     }
     
     public void activate(int x, int y, int maxHp, int hp, int attack, int spoint){
