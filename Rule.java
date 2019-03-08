@@ -23,6 +23,9 @@ public class Rule implements Cloneable{
     private final int MAPSIZE_Y = 30; // マップの縦グリッド数 
     private final int MAX_FLR_NUM = 4; // フロア数
     private final int MAX_ENEMY_NUM_PER1FLR = 4; // 1フロア当たりの最大敵数
+    private final long MAP_SEED = 0; // マップ生成のシード値
+    private final int FLR_TYPE = 23; // フロアタイプ（4形状×各通路カット）
+    
     
     public Rule(){
         random = new Random();
@@ -53,19 +56,33 @@ public class Rule implements Cloneable{
         state.setTurn(0);
         state.setFlr(0);
         
-        // 全フロアの構造を決定
-        for(int fn = 0; fn < MAX_FLR_NUM; fn++){
-            FlrInformation newflr = new FlrInformation(MAPSIZE_X, MAPSIZE_Y);
-            newflr.createFlr(fn);
-            state.addFlrInformation(newflr);
-        }
-        
-        // プレイヤ・敵の初期化＆配置決定
+        // プレイヤ・敵の初期化
         state.setPlayer(new Player());
         for(int en = 0; en < MAX_ENEMY_NUM_PER1FLR; en++){
             Enemy newenemy = new Enemy();
-            // activate
             state.addEnemy(newenemy);
+        }
+        
+        // 全フロアの構造を決定，配置の決定
+        Random mapRand = new Random(MAP_SEED); // マップ作成用
+        for(int fn = 0; fn < MAX_FLR_NUM; fn++){
+            FlrInformation newflr = new FlrInformation(MAPSIZE_X, MAPSIZE_Y);
+            newflr.createFlr(fn, mapRand.nextInt(FLR_TYPE)); // 階層の作成，（階層数，フロアタイプ）
+            
+            int settableGridNumber = newflr.getSettableGridNumber(); // 新規フロアの設置可能数の獲得
+            
+            // 敵の配置の決定
+            for(int en = 0; en < MAX_ENEMY_NUM_PER1FLR; en++, settableGridNumber--){
+                // 配置の決定
+            }
+            
+            // アイテムの配置の決定
+            
+            
+            // objの配置の決定
+            
+            
+            state.addFlrInformation(newflr);
         }
         
         return state;
