@@ -1,4 +1,5 @@
 
+import java.util.List;
 import java.util.ArrayList;
 
 /*
@@ -16,8 +17,8 @@ public class State implements Cloneable {
     private int turn;
     private int flr;
     private Player player;
-    private ArrayList<Enemy> enemy_List; // 現フロアの敵情報
-    private ArrayList<FlrInformation> flr_List; // フロア情報はリストとして所持
+    private List<Enemy> enemy_List; // 現フロアの敵情報
+    private List<FlrInformation> flr_List; // フロア情報はリストとして所持
     
     public State(){
         enemy_List = new ArrayList<Enemy>(); // リストの宣言
@@ -66,6 +67,8 @@ public class State implements Cloneable {
         return state;
     }
     
+    // getter,setter
+    
     public int getTurn(){ return turn; }
     public void setTurn(int turn){ this.turn = turn; }
     
@@ -75,11 +78,11 @@ public class State implements Cloneable {
     public Player getPlayer(){ return player; }
     public void setPlayer(Player player){ this.player = player; }
     
-    public ArrayList<Enemy> getEnemyList(){ return enemy_List; }
+    public ArrayList<Enemy> getEnemyList(){ return new ArrayList<Enemy>(enemy_List); }
     public Enemy getEnemy(int enemy_index){ return enemy_List.get(enemy_index); }
     public void addEnemy(Enemy newenemy){ enemy_List.add(newenemy); }
     
-    public ArrayList<FlrInformation> getFlrList(){ return flr_List; }
+    public ArrayList<FlrInformation> getFlrList(){ return new ArrayList<FlrInformation>(flr_List); }
     public FlrInformation getFlrInformation(int flr_number){ return flr_List.get(flr_number); }
     public void addFlrInformation(FlrInformation newflr){ flr_List.add(newflr); }
 }

@@ -13,6 +13,7 @@
 // ゲームの次状態の取得，
 
 
+import java.awt.Point;
 import java.util.Random;
 
 public class Rule implements Cloneable{
@@ -25,6 +26,7 @@ public class Rule implements Cloneable{
     private final int MAX_ENEMY_NUM_PER1FLR = 4; // 1フロア当たりの最大敵数
     private final long MAP_SEED = 0; // マップ生成のシード値
     private final int FLR_TYPE = 23; // フロアタイプ（4形状×各通路カット）
+    private final int MAX_ITEM_NUM_PER1FLR = 4; // 1フロア当たりの最大アイテム数
     
     
     public Rule(){
@@ -73,14 +75,20 @@ public class Rule implements Cloneable{
             
             // 敵の配置の決定
             for(int en = 0; en < MAX_ENEMY_NUM_PER1FLR; en++, settableGridNumber--){
-                // 配置の決定
+                Point enemypos = newflr.setEnemyPos(random.nextInt(settableGridNumber), en); // 配置の決定
+                state.getEnemy(en).activate(enemypos.x, enemypos.y, 100, 100, 10, 10); // 初期フロアのenemyのアクティブ化
             }
             
             // アイテムの配置の決定
-            
+            int itemnum = MAX_ITEM_NUM_PER1FLR; // 適当に減少させる
+            for(int in = 0; in < itemnum; in++, settableGridNumber--){
+                // 配置するアイテムタイプの決定
+                //Point ip = newflr.setItemPos(random.nextInt(settableGridNumber)); // 配置の決定
+                
+            }
             
             // objの配置の決定
-            
+            Point stairpos = newflr.setObjPos(random.nextInt(settableGridNumber), 0); // 配置の決定
             
             state.addFlrInformation(newflr);
         }

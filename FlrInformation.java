@@ -154,7 +154,7 @@ public class FlrInformation implements Cloneable {
         }
     }
     
-    public Point setEnemyPos(int setNumber){
+    public Point setEnemyPos(int setNumber, int enemyControlNum){
         int count = 0;
         int ex = 0;
         int ey = 0;
@@ -163,7 +163,9 @@ public class FlrInformation implements Cloneable {
             for(int x = 0; x < map[y].length; x++){
                 if(map[y][x] == 0){
                     if(count == setNumber) {
-                        // 配置可能座標の時，更新
+                        ex = x;
+                        ey = y;
+                        unitMap[y][x] = enemyControlNum; // 配置可能座標の時，更新
                     }
                     else{
                         count++; // 配置可能な部分をカウント
@@ -173,6 +175,52 @@ public class FlrInformation implements Cloneable {
         }
         
         return new Point(ex, ey);
+    }
+    
+    public Point setItemPos(int setNumber, int itemtype){
+        int count = 0;
+        int ix = 0;
+        int iy = 0;
+        
+        for(int y = 0; y < map.length; y++){
+            for(int x = 0; x < map[y].length; x++){
+                if(map[y][x] == 0){
+                    if(count == setNumber) {
+                        ix = x;
+                        iy = y;
+                        itemMap[y][x] = 1; // 配置可能座標の時，更新
+                    }
+                    else{
+                        count++; // 配置可能な部分をカウント
+                    }
+                }
+            }
+        }
+        
+        return new Point(ix, iy);
+    }
+    
+    public Point setObjPos(int setNumber, int objControlNumber){
+        int count = 0;
+        int objx = 0;
+        int objy = 0;
+        
+        for(int y = 0; y < map.length; y++){
+            for(int x = 0; x < map[y].length; x++){
+                if(map[y][x] == 0){
+                    if(count == setNumber) {
+                        objx = x;
+                        objy = y;
+                        itemMap[y][x] = 1; // 配置可能座標の時，更新
+                    }
+                    else{
+                        count++; // 配置可能な部分をカウント
+                    }
+                }
+            }
+        }
+        
+        return new Point(objx, objy);
     }
     
     // s[] = intに変換したいストリングを収めた配列
