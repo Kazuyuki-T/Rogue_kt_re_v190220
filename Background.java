@@ -499,8 +499,7 @@ public class Background extends LoadImg
 			for(int x = playerGX - max_X/2, countX = -max_X/2; x <= playerGX + max_X/2; x++, countX++){
 				// マップの下限と上限
 				// マップの範囲外に出た場合は黒背景
-				if(y<0 || x<0 || y>=MyCanvas.MAPGRIDSIZE_Y || x>=MyCanvas.MAPGRIDSIZE_X)
-				{
+				if(y<0 || x<0 || y>=MyCanvas.MAPGRIDSIZE_Y || x>=MyCanvas.MAPGRIDSIZE_X) {
 					continue;
 				}
 
@@ -517,7 +516,7 @@ public class Background extends LoadImg
 				// プレイヤの位置にとらわれすぎでは？
 
 				// スリーンサイズからの描画座標の算出
-				int sDrowPointX = (max_X / 2 + 1 + countX) * mcX ;
+				int sDrowPointX = (max_X / 2 + 1 + countX) * mcX;
 				int sDrowPointY = (max_Y / 2 + 1 + countY) * mcY;
 				if(map[y][x] == 0){
 					//g.drawImage(img, sDrowPointX - mcX/2, sDrowPointY - mcY/2,

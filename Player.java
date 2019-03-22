@@ -25,6 +25,7 @@ public class Player extends Unit implements Cloneable {
         level = 0;
         exp = 0;
         sumExp = 0;
+        loadImage("src/mat/player.png"); // マップチップの読み込み
     }
     
     public void init(){

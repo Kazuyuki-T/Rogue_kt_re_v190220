@@ -12,18 +12,12 @@ public abstract class ImageLoader extends Canvas implements Cloneable {
     // 本来のimgサイズ
     private int sizeX;
     private int sizeY;
-
-    // 倍率をかけたimgサイズ
-    private int sizeMagX;
-    private int sizeMagY;
     
     public ImageLoader(){
         super();
         img = null;
         sizeX = 0;
         sizeY = 0;
-        sizeMagX = 0;
-        sizeMagY = 0;
     }
     
     public ImageLoader clone(){

@@ -4,10 +4,6 @@
  * and open the template in the editor.
  */
 
-/**
- *
- * @author Kazuyuki.T
- */
 public class Manager implements Cloneable {
     private Rule rule;
     private State state; 
@@ -36,7 +32,7 @@ public class Manager implements Cloneable {
     }
     
     // ゲームのメインループ，guiあり
-    public void run_gui(){
+    public void run_gui_AI(){
         initState(); // ゲーム開始直前に初期化を挟む
         
         if(gameframeInitFlag == false){
@@ -53,11 +49,60 @@ public class Manager implements Cloneable {
             // 情報をキャンバスに渡し，描画
             gameframe.setState(state);
 
+            // ai:方向+行動->ターンを進める
+            // 人:
+            
             // ターンを進める
+
+            
+            // ゲーム終了ならば脱ループ
+            //if(true) break;
+            
+            
+            try {
+                Thread.sleep(1000); // 100msecスリープ
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }
+        
+        //return true; // 結果を返す
+    }
+    
+    // ゲームのメインループ，guiあり
+    public void run_gui_HUMAN(){
+        initState(); // ゲーム開始直前に初期化を挟む
+        
+        if(gameframeInitFlag == false){
+            // フレームの作成，描画の開始
+            gameframe = new GameFrame(); // フレームの構築
+            gameframe.run(); // 描画開始（スレッドスタート），次回以降は不要
+            gameframeInitFlag = true;
+        }
+        
+        KeyInput keyinput = new KeyInput(); // 入力に対応できるように
+        
+        while(true){
+            // プレイヤが確認できる範囲の情報
+            String str_state = state.getStateForPlayer();
+
+            // 情報をキャンバスに渡し，描画
+            gameframe.setState(state);
+
+            // 人:
+            rule.getNextState(state, keyinput)
+            
             
             
             // ゲーム終了ならば脱ループ
             //if(true) break;
+            
+            
+            try {
+                Thread.sleep(1000); // 100msecスリープ
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
         }
         
         //return true; // 結果を返す

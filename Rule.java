@@ -28,6 +28,8 @@ public class Rule implements Cloneable{
     private final int FLR_TYPE = 23; // フロアタイプ（4形状×各通路カット）
     private final int MAX_ITEM_NUM_PER1FLR = 4; // 1フロア当たりの最大アイテム数
     
+    private final int FIELD_OF_VIEW_X = 4; // 何マス先まで見えるか，この場合自身の周囲9×9マスが見える
+    private final int FIELD_OF_VIEW_Y = 4;
     
     public Rule(){
         random = new Random();
@@ -54,6 +56,14 @@ public class Rule implements Cloneable{
     public State getInitState(){
         State state = new State();
         
+        // プレイヤの視界
+        state.setFieldofViewX(FIELD_OF_VIEW_X);
+        state.setFieldofViewY(FIELD_OF_VIEW_Y);
+        
+        // マップサイズの最大値
+        state.setMapSizeX(MAPSIZE_X);
+        state.setMapSizeY(MAPSIZE_Y);
+        
         // 初期化処理
         state.setTurn(0);
         state.setFlr(0);
@@ -73,22 +83,30 @@ public class Rule implements Cloneable{
             
             int settableGridNumber = newflr.getSettableGridNumber(); // 新規フロアの設置可能数の獲得
             
+            // 初階層の時，プレイヤの配置
+            if(fn == 0){
+                Point playerpos = newflr.setPlayerPos(random.nextInt(settableGridNumber--)); // （ランダム番号，管理番号）
+                state.getPlayer().activate(playerpos.x, playerpos.y, 100, 100, 10, 100, 100, 0, 0, 0);
+            }
+           
             // 敵の配置の決定
             for(int en = 0; en < MAX_ENEMY_NUM_PER1FLR; en++, settableGridNumber--){
                 Point enemypos = newflr.setEnemyPos(random.nextInt(settableGridNumber), en); // 配置の決定
                 state.getEnemy(en).activate(enemypos.x, enemypos.y, 100, 100, 10, 10); // 初期フロアのenemyのアクティブ化
+                System.out.println("enemy" + en + ":(" + enemypos.x + ", " + enemypos.y + ")");
             }
             
             // アイテムの配置の決定
             int itemnum = MAX_ITEM_NUM_PER1FLR; // 適当に減少させる
             for(int in = 0; in < itemnum; in++, settableGridNumber--){
-                // 配置するアイテムタイプの決定
+                // アイテムタイプの決定
                 //Point ip = newflr.setItemPos(random.nextInt(settableGridNumber)); // 配置の決定
-                
+                //activate
             }
             
-            // objの配置の決定
+            // objの配置の決定，今は階段のみ
             Point stairpos = newflr.setObjPos(random.nextInt(settableGridNumber), 0); // 配置の決定
+            
             
             state.addFlrInformation(newflr);
         }
@@ -96,7 +114,21 @@ public class Rule implements Cloneable{
         return state;
     }
     
+    // aiプレイヤの場合
     public State getNextState(State state, int act){
+        State nextstate = null;
+        
+        // ターン経過処理
+        
+        // プレイヤの行動actの反映
+        
+        // 敵の行動
+        
+        return nextstate;
+    }
+    
+    // 人間プレイヤの場合
+    public State getNextState(State state, KeyInput keyinput){
         State nextstate = null;
         
         // ターン経過処理

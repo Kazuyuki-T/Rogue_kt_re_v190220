@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Random;
-import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -38,10 +36,31 @@ import javax.swing.JTextArea;
  * @author Kazuyuki.T
  */
 
-public class GameFrame implements Cloneable{
+public class GameFrame extends ImageLoader implements Cloneable{
     private MainCanvas maincanvas;
     
+    // フレームのサイズ
+    private static final int FRAMESIZE_X = 1024;
+    private static final int FRAMESIZE_Y = 900;
+    
+    // メインマップのサイズ
+    private static final int MAINMAP_DRAWAREASIZE_X = 480;
+    private static final int MAINMAP_DRAWAREASIZE_Y = 480;
+    
+    // メインマップの描画位置のオフセット
+    private static final int MAINMAP_OFFSET_X = 20; // マップ描画の開始座標のオフセット，x座標
+    private static final int MAINMAP_OFFSET_Y = 20; // マップ描画の開始座標のオフセット，y座標
+    
+    // サブマップのサイズ
+    private static final int SUBMAP_DRAWAREASIZE_X = 480;
+    private static final int SUBMAP_DRAWAREASIZE_Y = 480;
+    
+    // サブマップの描画位置のオフセット
+    private static final int SUBMAP_OFFSET_X = 20;
+    private static final int SUBMAP_OFFSET_Y = 20;
+    
     public GameFrame() {
+        super();
         
         //<editor-fold defaultstate="collapsed" desc="レイアウトの設定">
         GridBagLayout layout = new GridBagLayout();
@@ -105,8 +124,8 @@ public class GameFrame implements Cloneable{
         //<editor-fold defaultstate="collapsed" desc="キャンバス全般の設定">
         // キャンパスの作成(周囲視野)
         maincanvas = new MainCanvas(); // キャンバス
-        int frameSizeX = 1024;
-        int frameSizeY = 900;
+        //int frameSizeX = 1024;
+        //int frameSizeY = 900;
 
         // フォルダ・ログ用の名前（日時）作成
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -120,12 +139,12 @@ public class GameFrame implements Cloneable{
         }
 
         //maincanvas.init(frameSizeX - 250, frameSizeY);
-        maincanvas.setFrameSize(frameSizeX - 250, frameSizeY);
+        maincanvas.setFrameSize(FRAMESIZE_X - 250, FRAMESIZE_Y);
 
         // 以下，抜くと描画が不可？サイズの変化が原因か
-        maincanvas.setPreferredSize(new Dimension(frameSizeX - 250, frameSizeY)); // 適切なサイズの設定
-        maincanvas.setMinimumSize(new Dimension(frameSizeX - 250, frameSizeY)); // 最小サイズの設定
-        maincanvas.setMaximumSize(new Dimension(frameSizeX - 250, frameSizeY)); // 最大サイズの設定
+        maincanvas.setPreferredSize(new Dimension(FRAMESIZE_X - 250, FRAMESIZE_Y)); // 適切なサイズの設定
+        maincanvas.setMinimumSize(new Dimension(FRAMESIZE_X - 250, FRAMESIZE_Y)); // 最小サイズの設定
+        maincanvas.setMaximumSize(new Dimension(FRAMESIZE_X - 250, FRAMESIZE_Y)); // 最大サイズの設定
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 2;
@@ -138,7 +157,7 @@ public class GameFrame implements Cloneable{
         //<editor-fold defaultstate="collapsed" desc="Jフレームの作成">
         JFrame frame = new JFrame();
 
-        frame.setSize(frameSizeX, frameSizeY); // ウィンドウのサイズ，実際のサイズはもう少し小さい
+        frame.setSize(FRAMESIZE_X, FRAMESIZE_Y); // ウィンドウのサイズ，実際のサイズはもう少し小さい
         frame.setResizable(false); // サイズ変更不可
         frame.setTitle("RogeLike(" + folderName + ")"); // タイトル
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // クローズ
@@ -154,6 +173,8 @@ public class GameFrame implements Cloneable{
 
         maincanvas.setOffScreenBuf(); // オフスクリーンバッファの作成，1度行う，setVisible(true)の後である必要あり
         maincanvas.init(); // 描画用ゲームデータの初期化
+        
+        loadImage("src/mat/mapchip.png"); // マップチップの読み込み
         
         // ログの管理どうすんねーん
         Logger.setLoggerLevel(0);
@@ -235,18 +256,132 @@ public class GameFrame implements Cloneable{
         }
         
         public void setState(State state){
+            // 描画するstateの更新
             this.state = state;
+        }
+        
+        public void setGBuf(){
+            gBuf.setColor(Color.black);
+            gBuf.fillRect(0, 0, fsizeX, fsizeY);
             
-            test++;
-            System.out.println(test);
-            if(test % 2==0){
-                gBuf.setColor(Color.white);
-                gBuf.fillRect(0, 0, fsizeX, fsizeY);
+            // メインマップの描画順
+            // 1:マップ（通行可不可）+縦横のグリッド線
+            // 2:オブジェクト（階段等）
+            // 3:アイテム
+            // 4:ユニット（プレイヤ，敵）
+            
+            // stateから描画領域の指定
+            // プレイヤを中心に，視界の範囲分を確認
+            int playerPos_X = state.getPlayer().getPosX();
+            int playerPos_Y = state.getPlayer().getPosY();
+            int playerFoV_X = state.getFieldofViewX();
+            int playerFoV_Y = state.getFieldofViewY();
+            System.out.println("player:(" + playerPos_X + "," + playerPos_Y + ")");
+            System.out.println("playerFoV:(" + playerFoV_X + "," + playerFoV_Y + ")");
+            System.out.println("mapSize:(" + state.getMapSizeX() + "," + state.getMapSizeY() + ")");
+            
+            int gridSizeX = MAINMAP_DRAWAREASIZE_X / (playerFoV_X * 2 + 1); // 描画する1グリッドのサイズ，x, height
+            int gridSizeY = MAINMAP_DRAWAREASIZE_Y / (playerFoV_Y * 2 + 1); // 描画する1グリッドのサイズ，y, width
+            
+            for(int gy = 0; gy < state.getMapSizeY(); gy++){
+                for(int gx= 0; gx < state.getMapSizeX(); gx++){
+                    System.out.print(state.getFlrInformation(state.getFlr()).getMap(gx, gy));
+                }
+                System.out.println();
             }
-            else{
-                gBuf.setColor(Color.red);
-                gBuf.fillRect(0, 0, fsizeX, fsizeY);
+            
+            // マップの描画
+            for(int gy = playerPos_Y - playerFoV_Y, counterY = 0; gy <= playerPos_Y + playerFoV_Y; gy++, counterY++){
+                for(int gx = playerPos_X - playerFoV_X, counterX = 0; gx <= playerPos_X + playerFoV_X; gx++, counterX++){
+                    if(gy < 0 || state.getMapSizeY() <= gy || gx < 0 || state.getMapSizeX() <= gx){
+                        // 0未満もしくはマップの最大値以上の場合，黒表示
+                        //System.out.print("-1");
+                    }
+                    else{
+                        int pickupGrid = state.getFlrInformation(state.getFlr()).getMap(gx, gy); // その他の場合，map[][]に従う
+                        int drawPointX = counterX * gridSizeX;
+                        int drawPointY = counterY * gridSizeY; 
+                        if(pickupGrid == state.getFlrInformation(state.getFlr()).MAP_ROOM || pickupGrid == state.getFlrInformation(state.getFlr()).MAP_GATE || pickupGrid == state.getFlrInformation(state.getFlr()).MAP_PATH){
+                            // 通行可能
+                            //System.out.print("1 ");
+                            // (img, 描画の左上，描画の右下，画像の左上，画像の右下，this)
+                            gBuf.drawImage(getImg(), drawPointX + MAINMAP_OFFSET_X, drawPointY + MAINMAP_OFFSET_Y, drawPointX + gridSizeX + MAINMAP_OFFSET_X, drawPointY + gridSizeY + MAINMAP_OFFSET_Y, 0, 0, 32, 32, this);
+                        }
+                        else if(pickupGrid == state.getFlrInformation(state.getFlr()).MAP_WALL){
+                            // 通行不可能
+                            //System.out.print("0 ");
+                            gBuf.drawImage(getImg(), drawPointX + MAINMAP_OFFSET_X, drawPointY + MAINMAP_OFFSET_Y, drawPointX + gridSizeX + MAINMAP_OFFSET_X, drawPointY + gridSizeY + MAINMAP_OFFSET_Y, 64, 0, 32 + 64, 32, this);
+                        }
+                        //System.out.println("drawPoint:(" + drawPointX + "," + drawPointY + ")," + pickupGrid);
+                    }
+                }
+                //System.out.println();
             }
+            
+            // 横線の描画
+            for(int counterY = 1; counterY <= playerFoV_Y * 2; counterY++){
+                gBuf.setColor(Color.black);
+                gBuf.fillRect(MAINMAP_OFFSET_X, counterY * gridSizeY - 1 + MAINMAP_OFFSET_Y, (playerFoV_X * 2 + 1) * gridSizeX, 2); // fillRect(x, y, width, height), x~x+width-1,y~y+height-1
+            }
+            
+            // 縦線の描画
+            for(int counterX = 1; counterX <= playerFoV_X * 2; counterX++){
+                gBuf.setColor(Color.black);
+                gBuf.fillRect(counterX * gridSizeX - 1 + MAINMAP_OFFSET_X, MAINMAP_OFFSET_Y, 2, (playerFoV_Y * 2 + 1) * gridSizeY); // fillRect(x, y, width, height), x~x+width-1,y~y+height-1
+            }
+            
+            // オブジェクトの描画
+            // gx,gy:map[][]の各インデックス, counterX,Y:視界内の左上からのグリッドカウント数
+            for(int gy = playerPos_Y - playerFoV_Y, counterY = 0; gy <= playerPos_Y + playerFoV_Y; gy++, counterY++){
+                for(int gx = playerPos_X - playerFoV_X, counterX = 0; gx <= playerPos_X + playerFoV_X; gx++, counterX++){
+                    if(gy < 0 || state.getMapSizeY() <= gy || gx < 0 || state.getMapSizeX() <= gx){
+                        // 0未満もしくはマップの最大値以上の場合，黒表示
+                    }
+                    else{
+                        int pickupGrid = state.getFlrInformation(state.getFlr()).getObjMap(gx, gy); // その他の場合，map[][]に従う
+                        int drawPointX = counterX * gridSizeX;
+                        int drawPointY = counterY * gridSizeY; 
+                        if(pickupGrid == 0){
+                            // (img, 描画の左上，描画の右下，画像の左上，画像の右下，this)
+                            //gBuf.drawImage(getImg(), drawPointX + MAINMAP_OFFSET_X, drawPointY + MAINMAP_OFFSET_Y, drawPointX + gridSizeX + MAINMAP_OFFSET_X, drawPointY + gridSizeY + MAINMAP_OFFSET_Y, 0, 0, 32, 32, this);
+                        }
+                        else if(pickupGrid == 1){
+                            //gBuf.drawImage(getImg(), drawPointX + MAINMAP_OFFSET_X, drawPointY + MAINMAP_OFFSET_Y, drawPointX + gridSizeX + MAINMAP_OFFSET_X, drawPointY + gridSizeY + MAINMAP_OFFSET_Y, 64, 0, 32 + 64, 32, this);
+                        }
+                    }
+                }
+            }
+            
+            // アイテムの描画
+            
+            // ユニットの描画
+            for(int gy = playerPos_Y - playerFoV_Y, counterY = 0; gy <= playerPos_Y + playerFoV_Y; gy++, counterY++){
+                for(int gx = playerPos_X - playerFoV_X, counterX = 0; gx <= playerPos_X + playerFoV_X; gx++, counterX++){
+                    if(gy < 0 || state.getMapSizeY() <= gy || gx < 0 || state.getMapSizeX() <= gx){
+                        // 0未満もしくはマップの最大値以上の場合，黒表示
+                        System.out.println("under 0 || over top");
+                    }
+                    else{
+                        int pickupGrid = state.getFlrInformation(state.getFlr()).getUnitMap(gx, gy); // その他の場合，map[][]に従う
+                        int drawPointX = counterX * gridSizeX;
+                        int drawPointY = counterY * gridSizeY; 
+                        if(pickupGrid == state.getFlrInformation(state.getFlr()).UNITMAP_PALYER){
+                            // (img, 描画の左上，描画の右下，画像の左上，画像の右下，this)
+                            gBuf.drawImage(state.getPlayer().getImg(), drawPointX + MAINMAP_OFFSET_X, drawPointY + MAINMAP_OFFSET_Y, drawPointX + gridSizeX + MAINMAP_OFFSET_X, drawPointY + gridSizeY + MAINMAP_OFFSET_Y, 0, 0, 32, 32, this);
+                            System.out.println("player draw:" + pickupGrid);
+                        }
+                        else if(pickupGrid >= state.getFlrInformation(state.getFlr()).UNITMAP_ENEMY){
+                            gBuf.drawImage(state.getEnemy(pickupGrid - state.getFlrInformation(state.getFlr()).UNITMAP_ENEMY).getImg(), drawPointX + MAINMAP_OFFSET_X, drawPointY + MAINMAP_OFFSET_Y, drawPointX + gridSizeX + MAINMAP_OFFSET_X, drawPointY + gridSizeY + MAINMAP_OFFSET_Y, 0, 0, 32, 32, this);
+                            System.out.println("enemy draw:" + pickupGrid);
+                        }
+                    }
+                }
+            }
+            
+            
+            // サブマップの描画
+            
+            // インベントリの描画
             
         }
         
@@ -263,6 +398,8 @@ public class GameFrame implements Cloneable{
                 }catch(InterruptedException e){
                     System.out.println(e);
                 }
+                
+                setGBuf(); // 現在のstateを基に，バッファへ描画しておく
                 
                 // repaint()メソッドは実装の必要なし
                 // update() -> paint() の順に呼び出す

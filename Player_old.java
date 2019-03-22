@@ -437,8 +437,7 @@ public class Player_old extends Unit implements Cloneable
 	// 描画処理
 	public void draw(Graphics g)
 	{
-		if (active == true)
-		{
+		if (active == true) {
 			// 読み込んだ画像の出力
 			//g.drawImage(img, x - sizeMagX/2, y - sizeMagY/2, x + sizeMagX/2, y + sizeMagY/2, 0, 0, sizeX, sizeY, this);
                         g.drawImage(this.getImg(), x - sizeMagX/2, y - sizeMagY/2, x + sizeMagX/2, y + sizeMagY/2, 0, 0, sizeX, sizeY, this);

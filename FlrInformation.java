@@ -16,6 +16,7 @@ import java.io.IOException;
  *
  * @author Kazuyuki.T
  */
+
 public class FlrInformation implements Cloneable {
     // 1階層分の情報を持つ
     // ダンジョンの形状，敵アイテム階段配置など
@@ -27,21 +28,47 @@ public class FlrInformation implements Cloneable {
     private int unmovableGridNumber; // 移動不可なマス数
     private int settableGridNumber; // 部屋内の合計マス数
     
-    private int[][] map; // マップのみ，ユニット・オブジェクトなし
-    private int[][] itemMap; // アイテムのみ
-    private int[][] objMap; // オブジェクトのみ
-    private int[][] unitMap; // ユニットのみ
+    private int[][] map; // マップのみ，ユニット・オブジェクトなし，0:通行不可,1:通行可,2:部屋内通路手前
+    private int[][] itemMap; // アイテムのみ，0:なし1:
+    private int[][] objMap; // オブジェクトのみ，0:なし1:階段
+    private int[][] unitMap; // ユニットのみ，0:なし1:プレイヤ2-:敵
     
+    public final int MAP_WALL = 0; // 移動不可
+    public final int MAP_ROOM = 1; // 移動可，部屋
+    public final int MAP_GATE = 2; // 移動可，部屋の出入口　初期化時にオブジェクトの配置をしない
+    public final int MAP_PATH = 3; // 移動可，通路
+
+    public final int UNITMAP_EMPTY = 0;
+    public final int UNITMAP_PALYER = 1;
+    public final int UNITMAP_ENEMY = 2;
+    
+    public final int ITEMMAP_EMPTY = 0;
+    public final int ITEMMAP_POTION = 1;
+    public final int ITEMMAP_ARROW = 2;
+    public final int ITEMMAP_STAFF = 3;
+    public final int ITEMMAP_FOOD = 4;
+    
+    public final int OBJMAP_EMPTY = 1;
+    public final int OBJMAP_STAIR = 1;
     
     public FlrInformation(int mapsizeX, int mapsizeY){
         map = new int[mapsizeY][mapsizeX];
         itemMap = new int[mapsizeY][mapsizeX];
         objMap = new int[mapsizeY][mapsizeX];
         unitMap = new int[mapsizeY][mapsizeX];
+        init();
     }
     
     public void init(){
-        // 
+        // 初期化
+        for(int y = 0; y < map.length; y++){
+            for(int x = 0; x < map[y].length; x++){
+                map[y][x] = 1;
+                itemMap[y][x] = 0;
+                objMap[y][x] = 0;
+                unitMap[y][x] = 0;
+            }
+        }
     }
     
     // ディープコピー用
@@ -107,10 +134,10 @@ public class FlrInformation implements Cloneable {
                     tmpPoint = parseInts(str.split(","));
 
                     // アレイリストに追加するために整理
-                    Background.RoomPoint newrp = new Background.RoomPoint();
-                    newrp.topLeft = new Point(tmpPoint[0], tmpPoint[1]);
-                    newrp.bottmRight = new Point(tmpPoint[2], tmpPoint[3]);
-                    rpList.add(newrp);
+                    //Background.RoomPoint newrp = new Background.RoomPoint();
+                    //newrp.topLeft = new Point(tmpPoint[0], tmpPoint[1]);
+                    //newrp.bottmRight = new Point(tmpPoint[2], tmpPoint[3]);
+                    //rpList.add(newrp);
                     count++;
                 }
             }
@@ -121,7 +148,7 @@ public class FlrInformation implements Cloneable {
                 if (count == 0) {
                     pathNumber = Integer.parseInt(str); // 部屋数の確認
                     count++;
-                } 
+                }
                 else if(pathNumber == count){
                     break;
                 }
@@ -130,10 +157,10 @@ public class FlrInformation implements Cloneable {
                     int[] tmpPoint = new int[4];
                     tmpPoint = parseInts(str.split(","));
 
-                    Background.PassPoint newpp = new Background.PassPoint();
-                    newpp.topLeft = new Point(tmpPoint[0], tmpPoint[1]);
-                    newpp.bottmRight = new Point(tmpPoint[2], tmpPoint[3]);
-                    ppList.add(newpp);
+                    //Background.PassPoint newpp = new Background.PassPoint();
+                    //newpp.topLeft = new Point(tmpPoint[0], tmpPoint[1]);
+                    //newpp.bottmRight = new Point(tmpPoint[2], tmpPoint[3]);
+                    //ppList.add(newpp);
                     count++;
                 }
             }
@@ -141,7 +168,7 @@ public class FlrInformation implements Cloneable {
             // マップの読み込み
             count = 0;
             while ((str = br.readLine()) != null) {
-                //一行の内容を','で分割してそれぞれを[count=ノード番号]の２次元目の配列の要素として格納
+                // 一行の内容を','で分割してそれぞれを[count=ノード番号]の２次元目の配列の要素として格納
                 map[count] = parseInts(str.split(","));
                 count++;
             }
@@ -154,18 +181,26 @@ public class FlrInformation implements Cloneable {
         }
     }
     
-    public Point setEnemyPos(int setNumber, int enemyControlNum){
+    public Point setPlayerPos(int setNumber){
         int count = 0;
-        int ex = 0;
-        int ey = 0;
+        int px = 0;
+        int py = 0;
+        
+        System.out.println("setNumber:" + setNumber);
+                        
+        
+        // 左上から見て，部屋内かつ出入口でないとき，カウント
         
         for(int y = 0; y < map.length; y++){
             for(int x = 0; x < map[y].length; x++){
-                if(map[y][x] == 0){
+                if(map[y][x] == MAP_ROOM && unitMap[y][x] == UNITMAP_EMPTY){
                     if(count == setNumber) {
-                        ex = x;
-                        ey = y;
-                        unitMap[y][x] = enemyControlNum; // 配置可能座標の時，更新
+                        System.out.println("x,y:" + x + "," + y);
+                        System.out.println("count:" + count);
+                        px = x;
+                        py = y;
+                        unitMap[y][x] = 1; // 配置可能座標の時，更新
+                        return new Point(px, py);
                     }
                     else{
                         count++; // 配置可能な部分をカウント
@@ -174,7 +209,33 @@ public class FlrInformation implements Cloneable {
             }
         }
         
-        return new Point(ex, ey);
+        System.out.println("error : set PALYER position failure");
+        return new Point(-1, -1); // エラー処理
+    }
+    
+    public Point setEnemyPos(int setNumber, int enemyControlNum){
+        int count = 0;
+        int ex = 0;
+        int ey = 0;
+        
+        for(int y = 0; y < map.length; y++){
+            for(int x = 0; x < map[y].length; x++){
+                if(map[y][x] == MAP_ROOM && unitMap[y][x] == UNITMAP_EMPTY){
+                    if(count == setNumber) {
+                        ex = x;
+                        ey = y;
+                        unitMap[y][x] = enemyControlNum + UNITMAP_ENEMY; // 配置可能座標の時，更新，敵は2以降
+                        return new Point(ex, ey);
+                    }
+                    else{
+                        count++; // 配置可能な部分をカウント
+                    }
+                }
+            }
+        }
+        
+        System.out.println("error : set ENEMY position failure");
+        return new Point(-1, -1);
     }
     
     public Point setItemPos(int setNumber, int itemtype){
@@ -184,11 +245,12 @@ public class FlrInformation implements Cloneable {
         
         for(int y = 0; y < map.length; y++){
             for(int x = 0; x < map[y].length; x++){
-                if(map[y][x] == 0){
+                if(map[y][x] == MAP_ROOM && itemMap[y][x] == ITEMMAP_EMPTY){
                     if(count == setNumber) {
                         ix = x;
                         iy = y;
                         itemMap[y][x] = 1; // 配置可能座標の時，更新
+                        return new Point(ix, iy);
                     }
                     else{
                         count++; // 配置可能な部分をカウント
@@ -197,7 +259,8 @@ public class FlrInformation implements Cloneable {
             }
         }
         
-        return new Point(ix, iy);
+        System.out.println("error : set ITEM position failure");
+        return new Point(-1, -1);
     }
     
     public Point setObjPos(int setNumber, int objControlNumber){
@@ -207,7 +270,7 @@ public class FlrInformation implements Cloneable {
         
         for(int y = 0; y < map.length; y++){
             for(int x = 0; x < map[y].length; x++){
-                if(map[y][x] == 0){
+                if(map[y][x] == MAP_ROOM){
                     if(count == setNumber) {
                         objx = x;
                         objy = y;
@@ -257,4 +320,9 @@ public class FlrInformation implements Cloneable {
     
     public int getSettableGridNumber(){ return settableGridNumber; }
     public void setSettableGridNumber(int settableGridNumber){ this.settableGridNumber = settableGridNumber; }
+    
+    public int getMap(int x, int y){ return map[y][x]; }
+    public int getItemMap(int x, int y){ return itemMap[y][x]; }
+    public int getObjMap(int x, int y){ return objMap[y][x]; }
+    public int getUnitMap(int x, int y){ return unitMap[y][x]; }
 }

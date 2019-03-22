@@ -14,11 +14,17 @@ import java.util.ArrayList;
  */
 
 public class State implements Cloneable {
-    private int turn;
-    private int flr;
+    private int mapsizeX; // マップサイズの最大値
+    private int mapsizeY;
+    private int fieldofviewX; // プレイヤの視野
+    private int fieldofviewY;
+    private int turn; // 経過ターン数
+    private int flr; // 現在のフロア数
     private Player player;
     private List<Enemy> enemy_List; // 現フロアの敵情報
     private List<FlrInformation> flr_List; // フロア情報はリストとして所持
+    
+    private int act; // 選択可能な行動，
     
     public State(){
         enemy_List = new ArrayList<Enemy>(); // リストの宣言
@@ -85,4 +91,14 @@ public class State implements Cloneable {
     public ArrayList<FlrInformation> getFlrList(){ return new ArrayList<FlrInformation>(flr_List); }
     public FlrInformation getFlrInformation(int flr_number){ return flr_List.get(flr_number); }
     public void addFlrInformation(FlrInformation newflr){ flr_List.add(newflr); }
+    
+    public int getFieldofViewX(){ return fieldofviewX;}
+    public void setFieldofViewX(int fieldofviewX){ this.fieldofviewX = fieldofviewX;}
+    public int getFieldofViewY(){ return fieldofviewY;}
+    public void setFieldofViewY(int fieldofviewY){ this.fieldofviewY = fieldofviewY;}
+    
+    public int getMapSizeX(){ return this.mapsizeX; }
+    public void setMapSizeX(int mapsizeX){ this.mapsizeX = mapsizeX; }
+    public int getMapSizeY(){ return this.mapsizeY; }
+    public void setMapSizeY(int mapsizeY){ this.mapsizeY = mapsizeY; }
 }

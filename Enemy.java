@@ -16,6 +16,7 @@ public class Enemy extends Unit implements Cloneable {
         setObjName("enemy");
         setObjNum(1);
         spoint = 0;
+        loadImage("src/mat/enemy.png"); // マップチップの読み込み
     }
     
     public void init(){
